@@ -3,6 +3,7 @@ import {
   setEnableRecordingUIAndUserIdForOrganizer,
   updateMeetingTokenIfExpired,
 } from "@calcom/app-store/dailyvideo/lib/VideoApiAdapter";
+import { resolveRecordingMode } from "@calcom/app-store/dailyvideo/lib/resolveRecordingMode";
 import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
 import { BookingRepository } from "@calcom/features/bookings/repositories/BookingRepository";
 import { EventTypeRepository } from "@calcom/features/eventtypes/repositories/eventTypeRepository";
@@ -300,6 +301,8 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       enableAutomaticTranscription,
       enableAutomaticRecordingForOrganizer,
       showTranscriptionButton,
+      // startRecording must request the same recording type the room was created with
+      recordingType: resolveRecordingMode("cloud") ?? "cloud",
       rediectAttendeeToOnExit: isOrganizer
         ? undefined
         : bookingObj.eventType?.calVideoSettings?.redirectUrlOnExit,

@@ -31,6 +31,7 @@ type CalVideoCallbacksParams = {
   showTranscriptionButton: boolean;
   enableAutomaticTranscription: boolean;
   enableAutomaticRecordingForOrganizer: boolean;
+  recordingType?: "cloud" | "local";
 };
 
 export const createCalVideoCallbacks = (params: CalVideoCallbacksParams) => {
@@ -42,10 +43,15 @@ export const createCalVideoCallbacks = (params: CalVideoCallbacksParams) => {
     showTranscriptionButton,
     enableAutomaticTranscription,
     enableAutomaticRecordingForOrganizer,
+    recordingType,
   } = params;
 
   const startRecording = () => {
     daily?.startRecording({
+      // startRecording defaults to type "cloud"; rooms created with a different
+      // enable_recording mode (e.g. DAILY_RECORDING_MODE=local) reject that and
+      // the recording silently never starts, so pass the room's mode explicitly.
+      type: recordingType ?? "cloud",
       // 480p
       videoBitrate: 2000,
     });
@@ -165,11 +171,13 @@ export const CalVideoPremiumFeatures = ({
   enableAutomaticTranscription,
   enableAutomaticRecordingForOrganizer,
   showTranscriptionButton,
+  recordingType,
 }: {
   showRecordingButton: boolean;
   enableAutomaticTranscription: boolean;
   enableAutomaticRecordingForOrganizer: boolean;
   showTranscriptionButton: boolean;
+  recordingType?: "cloud" | "local";
 }) => {
   const daily = useDaily();
   const [transcript, setTranscript] = useState("");
@@ -187,6 +195,7 @@ export const CalVideoPremiumFeatures = ({
     showTranscriptionButton,
     enableAutomaticTranscription,
     enableAutomaticRecordingForOrganizer,
+    recordingType,
   });
 
   useDailyEvent(

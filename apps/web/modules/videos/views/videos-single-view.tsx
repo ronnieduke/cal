@@ -170,6 +170,7 @@ export default function JoinCall(props: PageProps) {
             enableAutomaticRecordingForOrganizer={enableAutomaticRecordingForOrganizer}
             enableAutomaticTranscription={enableAutomaticTranscription}
             showTranscriptionButton={showTranscriptionButton}
+            recordingType={props.recordingType}
           />
         </div>
       )}
