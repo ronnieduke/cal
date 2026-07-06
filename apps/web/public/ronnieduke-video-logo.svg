@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 236 48" width="236" height="48" role="img" aria-label="Ronnie Duke">
+  <rect width="48" height="48" rx="10" fill="#6B8F7B"/>
+  <text
+    x="24"
+    y="34"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="28"
+    text-anchor="middle"
+    fill="#F5F1EB"
+    letter-spacing="-1"
+  >RD</text>
+  <text
+    x="62"
+    y="35"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="30"
+    fill="#F5F1EB"
+  >Ronnie Duke</text>
+</svg>

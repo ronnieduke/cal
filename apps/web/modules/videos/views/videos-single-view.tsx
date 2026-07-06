@@ -1,12 +1,7 @@
 "use client";
 
 import dayjs from "@calcom/dayjs";
-import {
-  RECORDING_DEFAULT_ICON,
-  TRANSCRIPTION_STOPPED_ICON,
-  WEBAPP_URL,
-  WEBSITE_URL,
-} from "@calcom/lib/constants";
+import { RECORDING_DEFAULT_ICON, TRANSCRIPTION_STOPPED_ICON, WEBAPP_URL } from "@calcom/lib/constants";
 import { formatToLocalizedDate, formatToLocalizedTime } from "@calcom/lib/dayjs";
 import { emailRegex } from "@calcom/lib/emailSchema";
 import { useLocale } from "@calcom/lib/hooks/useLocale";
@@ -69,16 +64,16 @@ export default function JoinCall(props: PageProps) {
         callFrame = DailyIframe.createFrame({
           theme: {
             colors: {
-              accent: "#292929",
-              accentText: "#FFF",
-              background: "#111111",
-              backgroundAccent: "#111111",
-              baseText: "#FFF",
-              border: "#292929",
-              mainAreaBg: "#111111",
-              mainAreaBgAccent: "#1A1A1A",
-              mainAreaText: "#FFF",
-              supportiveText: "#FFF",
+              accent: "#6B8F7B",
+              accentText: "#F5F1EB",
+              background: "#1A1A1A",
+              backgroundAccent: "#26221E",
+              baseText: "#F5F1EB",
+              border: "#3A342C",
+              mainAreaBg: "#1A1A1A",
+              mainAreaBgAccent: "#26221E",
+              mainAreaText: "#F5F1EB",
+              supportiveText: "#C9BFB2",
             },
           },
           showLeaveButton: true,
@@ -191,11 +186,11 @@ export default function JoinCall(props: PageProps) {
           />
         ) : (
           <img
-            className="fixed z-10 hidden h-5 sm:inline-block"
-            src={`${WEBSITE_URL}/cal-logo-word-dark.svg`}
-            alt="Logo"
+            className="fixed z-10 hidden h-6 sm:inline-block"
+            src={`${WEBAPP_URL}/ronnieduke-video-logo.svg`}
+            alt="Ronnie Duke"
             style={{
-              top: 47,
+              top: 44,
               left: 20,
             }}
           />
