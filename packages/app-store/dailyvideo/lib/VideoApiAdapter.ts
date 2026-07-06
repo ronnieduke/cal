@@ -21,6 +21,7 @@ import {
 } from "../zod";
 import type { TSubmitBatchProcessorJobRes, TGetTranscriptAccessLink, batchProcessorBody } from "../zod";
 import { fetcher } from "./dailyApiFetcher";
+import { resolveRecordingMode } from "./resolveRecordingMode";
 import {
   dailyReturnTypeSchema,
   getTranscripts,
@@ -280,7 +281,9 @@ const DailyVideoApiAdapter = (): VideoApiAdapter => {
       },
     });
 
-    const enableRecording = scalePlan === "true" && !!hasTeamPlan === true ? "cloud" : undefined;
+    const enableRecording = resolveRecordingMode(
+      scalePlan === "true" && !!hasTeamPlan === true ? "cloud" : undefined
+    );
     const isTranscriptionEnabled = !!hasTeamPlan;
 
     return {
@@ -294,7 +297,7 @@ const DailyVideoApiAdapter = (): VideoApiAdapter => {
         enable_pip_ui: true,
         exp: exp,
         enable_recording: enableRecording,
-        ...(!!enableRecording &&
+        ...(enableRecording === "cloud" &&
           isS3StorageEnabled && {
             recordings_bucket: {
               bucket_name: process.env.CAL_VIDEO_BUCKET_NAME,
@@ -330,7 +333,7 @@ const DailyVideoApiAdapter = (): VideoApiAdapter => {
 
     const isScalePlanTrue = scalePlan === "true";
 
-    const enableRecording = isScalePlanTrue ? "cloud" : undefined;
+    const enableRecording = resolveRecordingMode(isScalePlanTrue ? "cloud" : undefined);
 
     const body = {
       privacy: "public",
@@ -343,7 +346,7 @@ const DailyVideoApiAdapter = (): VideoApiAdapter => {
         enable_pip_ui: true,
         exp: exp,
         enable_recording: enableRecording,
-        ...(!!enableRecording &&
+        ...(enableRecording === "cloud" &&
           isS3StorageEnabled && {
             recordings_bucket: {
               bucket_name: process.env.CAL_VIDEO_BUCKET_NAME,
