@@ -9,6 +9,7 @@ import { getServerErrorFromUnknown } from "@calcom/lib/server/getServerErrorFrom
 import { setTestEmail } from "@calcom/lib/testEmails";
 import { prisma } from "@calcom/prisma";
 
+import { convertIcalEventToAlternative } from "../lib/convertIcalEventToAlternative";
 import { sanitizeDisplayName } from "../lib/sanitizeDisplayName";
 
 export default class BaseEmail {
@@ -71,10 +72,12 @@ export default class BaseEmail {
       },
       ...(parseSubject.success && { subject: decodeHTML(parseSubject.data) }),
     };
+    const finalPayload = convertIcalEventToAlternative(payloadWithUnEscapedSubject);
+
     const { createTransport } = await import("nodemailer");
     await new Promise((resolve, reject) =>
       createTransport(this.getMailerOptions().transport).sendMail(
-        payloadWithUnEscapedSubject,
+        finalPayload,
         (_err, info) => {
           if (_err) {
             const err = getServerErrorFromUnknown(_err);
@@ -88,8 +91,8 @@ export default class BaseEmail {
     ).catch((e) =>
       console.error(
         "sendEmail",
-        `from: ${"from" in payloadWithUnEscapedSubject ? payloadWithUnEscapedSubject.from : ""}`,
-        `subject: ${"subject" in payloadWithUnEscapedSubject ? payloadWithUnEscapedSubject.subject : ""}`,
+        `from: ${"from" in finalPayload ? finalPayload.from : ""}`,
+        `subject: ${"subject" in finalPayload ? finalPayload.subject : ""}`,
         e
       )
     );
