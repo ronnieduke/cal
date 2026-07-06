@@ -116,6 +116,21 @@ describe("ZohoCalendarService", () => {
       const eventData = parseEventDataFromRequestUrl(requestUrl);
       expect(eventData.notify_attendee).toBe(0);
     });
+
+    test("should not include attendees so Zoho cannot email its own invitations", async () => {
+      fetchMock.mockResolvedValueOnce(
+        generateJsonResponse({
+          json: { events: [{ uid: mockEventUid, etag: "1669788841981" }] },
+        })
+      );
+
+      const calendarService = BuildCalendarService(mockCredential);
+      await calendarService.createEvent(buildTestCalEvent(), mockCredentialId);
+
+      const [requestUrl] = fetchMock.mock.calls[0] as [string, RequestInit];
+      const eventData = parseEventDataFromRequestUrl(requestUrl);
+      expect(eventData.attendees).toBeUndefined();
+    });
   });
 
   describe("updateEvent", () => {

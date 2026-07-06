@@ -473,7 +473,12 @@ class ZohoCalendarService implements Calendar {
         end: dayjs(event.endTime).format("YYYYMMDDTHHmmssZZ"),
         timezone: event.organizer.timeZone,
       },
-      attendees: event.attendees.map((attendee) => ({ email: attendee.email })),
+      // Attendees are deliberately omitted: Zoho unconditionally emails invitations to
+      // attendees on external calendar providers ("even if the 'None' notification option
+      // is selected" per Zoho docs), and notify_attendee only suppresses Zoho-internal
+      // notifications. That invite duplicates Cal's own attendee email with a mismatched
+      // UID, creating a second event on the attendee's calendar. The attendee roster is
+      // still visible in the event description.
       isprivate: event.hideCalendarEventDetails ?? false,
       reminders: [
         {
