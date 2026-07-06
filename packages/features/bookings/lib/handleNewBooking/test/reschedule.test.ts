@@ -477,6 +477,7 @@ describe("handleNewBooking", () => {
             organizer,
             emails,
             iCalUID,
+            calendarType: "google_calendar",
           });
           expectBookingRescheduledWebhookToHaveBeenFired({
             booker,
@@ -637,6 +638,7 @@ describe("handleNewBooking", () => {
             booker,
             organizer,
             emails,
+            calendarType: "google_calendar",
           });
 
           expectBookingRescheduledWebhookToHaveBeenFired({
@@ -1079,6 +1081,7 @@ describe("handleNewBooking", () => {
               organizer,
               emails,
               iCalUID: "MOCKED_GOOGLE_CALENDAR_ICS_ID",
+              calendarType: "google_calendar",
             });
             expectBookingRescheduledWebhookToHaveBeenFired({
               booker,
@@ -1309,6 +1312,7 @@ describe("handleNewBooking", () => {
                   overrideName: "Google Meet",
                 }),
               ],
+              calendarType: "google_calendar",
             });
             expectBookingRescheduledWebhookToHaveBeenFired({
               booker,
@@ -1757,6 +1761,7 @@ describe("handleNewBooking", () => {
               organizer,
               emails,
               iCalUID: "MOCKED_GOOGLE_CALENDAR_ICS_ID",
+              calendarType: "google_calendar",
             });
 
             expectBookingRescheduledWebhookToHaveBeenFired({

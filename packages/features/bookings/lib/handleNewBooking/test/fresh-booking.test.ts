@@ -266,6 +266,7 @@ describe("handleNewBooking", () => {
           emails,
           iCalUID,
           destinationEmail: organizerDestinationCalendarEmailOnEventType,
+          calendarType: "google_calendar",
         });
 
         expectBookingCreatedWebhookToHaveBeenFired({
@@ -572,6 +573,7 @@ describe("handleNewBooking", () => {
             organizer,
             emails,
             iCalUID,
+            calendarType: "google_calendar",
           });
 
           expectBookingCreatedWebhookToHaveBeenFired({
@@ -840,6 +842,7 @@ describe("handleNewBooking", () => {
             organizer,
             emails,
             iCalUID,
+            calendarType: "google_calendar",
           });
 
           expectBookingCreatedWebhookToHaveBeenFired({
@@ -986,6 +989,7 @@ describe("handleNewBooking", () => {
             organizer,
             emails,
             iCalUID: "MOCKED_APPLE_CALENDAR_ICS_ID",
+            calendarType: "google_calendar",
           });
 
           expectBookingCreatedWebhookToHaveBeenFired({
@@ -3367,6 +3371,7 @@ describe("handleNewBooking", () => {
             emails,
             iCalUID,
             destinationEmail: organizerDestinationCalendarEmailOnEventType,
+            calendarType: "google_calendar",
           });
 
           await expect(
