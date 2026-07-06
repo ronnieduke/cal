@@ -21,13 +21,11 @@ export default function generateIcsFile({
   status: EventStatus;
   t?: TFunction;
 }) {
-  // O365 deletes emails if the calendar event is selected. Currently no option to disable this on the web
-  if (
-    role !== GenerateIcsRole.ATTENDEE &&
-    calEvent.destinationCalendar &&
-    calEvent.destinationCalendar[0]?.integration === "office365_calendar"
-  )
-    return null;
+  // When the organizer has a connected destination calendar, the event is created there
+  // directly via the provider API. Emailing an ICS on top of that duplicates the event in
+  // mail clients that auto-ingest calendar attachments (e.g. Zoho Mail, O365), since the
+  // emailed ICS's UID doesn't match the UID of the event created through the provider API.
+  if (role !== GenerateIcsRole.ATTENDEE && calEvent.destinationCalendar?.[0]) return null;
 
   return {
     filename: "event.ics",

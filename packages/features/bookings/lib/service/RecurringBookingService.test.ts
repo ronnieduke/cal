@@ -228,6 +228,7 @@ describe("handleNewRecurringBooking", () => {
               ...recurrence,
               count: recurringCountInRequest,
             },
+            calendarType: "google_calendar",
           });
 
           expect(emails.get().length).toBe(2);
