@@ -158,19 +158,22 @@ export default function JoinCall(props: PageProps) {
 
   return (
     <DailyProvider callObject={daily}>
-      {/* Visible only until the call frame mounts: the Daily iframe is full-bleed and
-          opaque, and is not created at all while the login overlay is open. */}
-      <div
-        aria-hidden
-        className="fixed inset-0 bg-center bg-cover"
-        style={{
-          zIndex: 0,
-          backgroundColor: videoBranding.theme.colors.background,
-          ...(videoBranding.backgroundUrl && {
-            backgroundImage: `url(${videoBranding.backgroundUrl})`,
-          }),
-        }}
-      />
+      {/* Unmounted once the call frame mounts. Daily Prebuilt paints an opaque, full-bleed
+          iframe over this, so leaving it mounted buys nothing and flashes into view whenever
+          the iframe repaints on resize. */}
+      {!isCallFrameReady && (
+        <div
+          aria-hidden
+          className="fixed inset-0 bg-center bg-cover"
+          style={{
+            zIndex: 0,
+            backgroundColor: videoBranding.theme.colors.background,
+            ...(videoBranding.backgroundUrl && {
+              backgroundImage: `url(${videoBranding.backgroundUrl})`,
+            }),
+          }}
+        />
+      )}
       {isCallFrameReady && (
         <div
           className="mx-auto hidden sm:block"

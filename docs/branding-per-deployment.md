@@ -91,9 +91,15 @@ Confirm it took effect by fetching any call page and reading the serialised prop
 curl -s https://<host>/video/<uid> | grep -oE 'recordingType[^,}]{0,25}'
 ```
 
-The background image is visible on the pre-join screen only. Daily's iframe is full-bleed
-and opaque, and is not created at all while the login overlay is open, which is the window
-the image fills. During the call itself, `NEXT_PUBLIC_CAL_VIDEO_BRAND_BG` is what shows.
+The background image is visible on the pre-join screen only, and is unmounted once the call
+frame mounts. Daily Prebuilt paints an opaque, full-bleed iframe over the page and cannot be
+made transparent — `createTransparentFrame()` is a non-interactive overlay
+(`pointer-events: none`, `custom-v1` layout), not the Prebuilt UI — so there is no way to
+show a page background behind a live call. Leaving the element mounted only made it flash
+into view whenever the iframe repainted on resize.
+
+Pick `NEXT_PUBLIC_CAL_VIDEO_BRAND_BG` to match the background image's own base colour so the
+hand-off is invisible; Trailspark's `#1A1C1F` is sampled from the image for that reason.
 
 ## 3. Database (per instance)
 
