@@ -1,9 +1,9 @@
+import { resolveRecordingMode } from "@calcom/app-store/dailyvideo/lib/resolveRecordingMode";
 import {
   generateGuestMeetingTokenFromOwnerMeetingToken,
   setEnableRecordingUIAndUserIdForOrganizer,
   updateMeetingTokenIfExpired,
 } from "@calcom/app-store/dailyvideo/lib/VideoApiAdapter";
-import { resolveRecordingMode } from "@calcom/app-store/dailyvideo/lib/resolveRecordingMode";
 import { getServerSession } from "@calcom/features/auth/lib/getServerSession";
 import { BookingRepository } from "@calcom/features/bookings/repositories/BookingRepository";
 import { EventTypeRepository } from "@calcom/features/eventtypes/repositories/eventTypeRepository";
@@ -12,6 +12,7 @@ import { UserRepository } from "@calcom/features/users/repositories/UserReposito
 import { CAL_VIDEO_MEETING_LINK_FOR_TESTING } from "@calcom/lib/constants";
 import { isENVDev } from "@calcom/lib/env";
 import prisma from "@calcom/prisma";
+import { resolveVideoBranding } from "@lib/video/resolveVideoBranding";
 import MarkdownIt from "markdown-it";
 import type { GetServerSidePropsContext } from "next";
 
@@ -166,7 +167,9 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       ).profile
     : null;
 
-  const organizationRepository = { findCalVideoLogoByOrgId: async (_args: { id: number }) => null as string | null };
+  const organizationRepository = {
+    findCalVideoLogoByOrgId: async (_args: { id: number }) => null as string | null,
+  };
 
   const calVideoLogo = profile?.organization
     ? await organizationRepository.findCalVideoLogoByOrgId({ id: profile.organization.id })
@@ -296,6 +299,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
       hasTeamPlan: !!hasTeamPlan,
       calVideoLogo,
+      videoBranding: resolveVideoBranding(),
       loggedInUserName: sessionUserId ? session?.user?.name : undefined,
       showRecordingButton,
       enableAutomaticTranscription,

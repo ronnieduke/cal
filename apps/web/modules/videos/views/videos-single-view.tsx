@@ -30,6 +30,7 @@ export default function JoinCall(props: PageProps) {
     booking,
     hasTeamPlan,
     calVideoLogo,
+    videoBranding,
     loggedInUserName,
     overrideName,
     showRecordingButton,
@@ -62,20 +63,7 @@ export default function JoinCall(props: PageProps) {
 
       try {
         callFrame = DailyIframe.createFrame({
-          theme: {
-            colors: {
-              accent: "#6B8F7B",
-              accentText: "#F5F1EB",
-              background: "#1A1A1A",
-              backgroundAccent: "#26221E",
-              baseText: "#F5F1EB",
-              border: "#3A342C",
-              mainAreaBg: "#1A1A1A",
-              mainAreaBgAccent: "#26221E",
-              mainAreaText: "#F5F1EB",
-              supportiveText: "#C9BFB2",
-            },
-          },
+          theme: videoBranding.theme,
           showLeaveButton: true,
           iframeStyle: {
             position: "fixed",
@@ -120,7 +108,7 @@ export default function JoinCall(props: PageProps) {
         return DailyIframe.getCallInstance();
       }
     },
-    [meetingUrl, meetingPassword, hasTeamPlan, showRecordingButton, showTranscriptionButton, t]
+    [meetingUrl, meetingPassword, hasTeamPlan, showRecordingButton, showTranscriptionButton, videoBranding, t]
   );
   useEffect(() => {
     if (!hideLoginModal && !guestCredentials) {
@@ -161,6 +149,19 @@ export default function JoinCall(props: PageProps) {
 
   return (
     <DailyProvider callObject={daily}>
+      {/* Visible only until the call frame mounts: the Daily iframe is full-bleed and
+          opaque, and is not created at all while the login overlay is open. */}
+      <div
+        aria-hidden
+        className="fixed inset-0 bg-center bg-cover"
+        style={{
+          zIndex: 0,
+          backgroundColor: videoBranding.theme.colors.background,
+          ...(videoBranding.backgroundUrl && {
+            backgroundImage: `url(${videoBranding.backgroundUrl})`,
+          }),
+        }}
+      />
       {isCallFrameReady && (
         <div
           className="mx-auto hidden sm:block"
@@ -188,8 +189,8 @@ export default function JoinCall(props: PageProps) {
         ) : (
           <img
             className="fixed z-10 hidden h-6 sm:inline-block"
-            src={`${WEBAPP_URL}/ronnieduke-video-logo.svg`}
-            alt="Ronnie Duke"
+            src={`${WEBAPP_URL}${videoBranding.logoUrl}`}
+            alt={videoBranding.logoAlt}
             style={{
               top: 44,
               left: 20,
