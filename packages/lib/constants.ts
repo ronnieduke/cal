@@ -1,9 +1,13 @@
+// biome-ignore-all lint/correctness/noProcessGlobal: this module is imported by Edge
+// runtime routes (e.g. /api/social/og/image), where `node:process` does not exist. The
+// autofix adds that import and breaks the production build at "Collecting page data".
+// Bare `process.env` works in both the Node and Edge runtimes; keep it.
+
 /**
  * Ensures URL has a protocol prefix. If the URL doesn't start with http:// or https://,
  * prepends https:// to make it valid for URL parsing.
  * This handles cases where environment variables have their protocol stripped
  */
-import process from "node:process";
 function ensureProtocol(url: string | undefined): string {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
