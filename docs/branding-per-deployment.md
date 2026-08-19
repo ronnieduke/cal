@@ -7,11 +7,16 @@ configuration, not code — there is no per-brand branch to keep rebasing agains
 Three mechanisms cover the surfaces, and which one applies is not a style choice; it
 depends on where the value is read.
 
+**Every application-level variable here needs the `NEXT_PUBLIC_` prefix.** Bundled code only
+sees prefixed names at runtime — an unprefixed one is `undefined` in the container and fails
+silently, which cost a debugging session and left recordings billing to Daily's cloud. The
+exception is code outside the bundle, such as Prisma reading `DATABASE_URL`.
+
 ## 1. Build-time env (`NEXT_PUBLIC_*`)
 
-Next.js inlines these at build, so **changing one requires a redeploy, not a restart**. Set
-them as service variables on the Railway service; each service builds its own image, so
-the two domains can hold different values.
+These are read at runtime, so a restart applies them — but a code change still needs a
+redeploy. Set them as service variables on the Railway service; each service holds its own
+values, so the two domains differ by configuration alone.
 
 | Variable | Trailspark | Notes |
 |---|---|---|
@@ -40,11 +45,19 @@ Favicons are not linked directly; they resolve through `/api/logo?type=…`, whi
 to these constants. The per-team `appLogo` path in that route is unreachable here — it
 short-circuits whenever `IS_SELF_HOSTED`, which is true for both domains.
 
-## 2. Runtime env (Cal Video)
+## 2. Cal Video branding (`NEXT_PUBLIC_CAL_VIDEO_*`)
 
-Read per request, so a **restart is enough**. The call page had no configuration hook at
-all: the org-level `calVideoLogo` is stubbed to `null` upstream, and the Daily theme
-colours were hardcoded.
+The call page had no configuration hook at all: the org-level `calVideoLogo` is stubbed to
+`null` upstream, and the Daily theme colours were hardcoded.
+
+**These names must keep the `NEXT_PUBLIC_` prefix.** Bundled application code in this build
+only sees `NEXT_PUBLIC_` prefixed variables at runtime; an unprefixed name reads as
+`undefined` inside the container and silently yields the fallback branding, with no error
+anywhere. This was verified on the deployment — an unprefixed variable never took effect
+across a rebuild and two restarts, while a prefixed one applied on restart alone.
+
+The read happens in the video route's server component, not in `getServerSideProps`, and
+both resolvers take the environment as an argument so the read stays at that call site.
 
 A brand supplies six colours, expanded across Daily's ten theme slots. Anything malformed
 falls back to the default — an invalid theme value throws inside the Daily iframe and would
@@ -52,22 +65,35 @@ take the call page down with it. Asset paths must be same-origin absolute paths 
 
 | Variable | Trailspark | Ronnie Duke (default) |
 |---|---|---|
-| `CAL_VIDEO_BRAND_ACCENT` | `#D33000` | `#6B8F7B` |
-| `CAL_VIDEO_BRAND_BG` | `#1A1C1F` | `#1A1A1A` |
-| `CAL_VIDEO_BRAND_BG_ACCENT` | `#24262A` | `#26221E` |
-| `CAL_VIDEO_BRAND_TEXT` | `#F2F3F5` | `#F5F1EB` |
-| `CAL_VIDEO_BRAND_TEXT_MUTED` | `#858892` | `#C9BFB2` |
-| `CAL_VIDEO_BRAND_BORDER` | `#33363B` | `#3A342C` |
-| `CAL_VIDEO_LOGO_URL` | `/trailspark-logo-white-word.png` | `/ronnieduke-video-logo.svg` |
-| `CAL_VIDEO_LOGO_ALT` | `Trailspark` | `Ronnie Duke` |
-| `CAL_VIDEO_BACKGROUND_URL` | `/trailspark-video-bg.jpg` | *(none)* |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT` | `#D33000` | `#6B8F7B` |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_BG` | `#1A1C1F` | `#1A1A1A` |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_BG_ACCENT` | `#24262A` | `#26221E` |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT` | `#F2F3F5` | `#F5F1EB` |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT_MUTED` | `#858892` | `#C9BFB2` |
+| `NEXT_PUBLIC_CAL_VIDEO_BRAND_BORDER` | `#33363B` | `#3A342C` |
+| `NEXT_PUBLIC_CAL_VIDEO_LOGO_URL` | `/trailspark-logo-white-word.png` | `/ronnieduke-video-logo.svg` |
+| `NEXT_PUBLIC_CAL_VIDEO_LOGO_ALT` | `Trailspark` | `Ronnie Duke` |
+| `NEXT_PUBLIC_CAL_VIDEO_BACKGROUND_URL` | `/trailspark-video-bg.jpg` | *(none)* |
 
-`cal.ronnieduke.com` needs none of these — the defaults are its existing palette, so
-deploying this is a no-op there.
+`cal.ronnieduke.com` needs none of these — the defaults are its existing palette.
+
+### `NEXT_PUBLIC_DAILY_RECORDING_MODE`
+
+Same trap, and it was costing money. `DAILY_RECORDING_MODE=local` was set but unprefixed, so
+the video page silently resolved `recordingType` to `"cloud"` and recordings billed per
+minute against the Daily account instead of recording locally for free. Set
+`NEXT_PUBLIC_DAILY_RECORDING_MODE` on **every** deployment that wants local recording; the
+unprefixed name is still read as a fallback but does not work in bundled code.
+
+Confirm it took effect by fetching any call page and reading the serialised props:
+
+```bash
+curl -s https://<host>/video/<uid> | grep -oE 'recordingType[^,}]{0,25}'
+```
 
 The background image is visible on the pre-join screen only. Daily's iframe is full-bleed
 and opaque, and is not created at all while the login overlay is open, which is the window
-the image fills. During the call itself, `CAL_VIDEO_BRAND_BG` is what shows.
+the image fills. During the call itself, `NEXT_PUBLIC_CAL_VIDEO_BRAND_BG` is what shows.
 
 ## 3. Database (per instance)
 
