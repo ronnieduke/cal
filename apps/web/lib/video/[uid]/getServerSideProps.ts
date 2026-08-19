@@ -1,4 +1,3 @@
-import { resolveRecordingMode } from "@calcom/app-store/dailyvideo/lib/resolveRecordingMode";
 import {
   generateGuestMeetingTokenFromOwnerMeetingToken,
   setEnableRecordingUIAndUserIdForOrganizer,
@@ -12,7 +11,6 @@ import { UserRepository } from "@calcom/features/users/repositories/UserReposito
 import { CAL_VIDEO_MEETING_LINK_FOR_TESTING } from "@calcom/lib/constants";
 import { isENVDev } from "@calcom/lib/env";
 import prisma from "@calcom/prisma";
-import { resolveVideoBranding } from "@lib/video/resolveVideoBranding";
 import MarkdownIt from "markdown-it";
 import type { GetServerSidePropsContext } from "next";
 
@@ -299,14 +297,11 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
       },
       hasTeamPlan: !!hasTeamPlan,
       calVideoLogo,
-      videoBranding: resolveVideoBranding(),
       loggedInUserName: sessionUserId ? session?.user?.name : undefined,
       showRecordingButton,
       enableAutomaticTranscription,
       enableAutomaticRecordingForOrganizer,
       showTranscriptionButton,
-      // startRecording must request the same recording type the room was created with
-      recordingType: resolveRecordingMode("cloud") ?? "cloud",
       rediectAttendeeToOnExit: isOrganizer
         ? undefined
         : bookingObj.eventType?.calVideoSettings?.redirectUrlOnExit,

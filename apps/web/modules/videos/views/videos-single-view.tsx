@@ -1,5 +1,6 @@
 "use client";
 
+import type { DailyRecordingMode } from "@calcom/app-store/dailyvideo/lib/resolveRecordingMode";
 import dayjs from "@calcom/dayjs";
 import { RECORDING_DEFAULT_ICON, TRANSCRIPTION_STOPPED_ICON, WEBAPP_URL } from "@calcom/lib/constants";
 import { formatToLocalizedDate, formatToLocalizedTime } from "@calcom/lib/dayjs";
@@ -17,10 +18,18 @@ import type { DailyCall } from "@daily-co/daily-js";
 import DailyIframe from "@daily-co/daily-js";
 import { DailyProvider, useDailyEvent } from "@daily-co/daily-react";
 import type { getServerSideProps } from "@lib/video/[uid]/getServerSideProps";
+import type { CalVideoBranding } from "@lib/video/resolveVideoBranding";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { CalVideoPremiumFeatures } from "../cal-video-premium-features";
 
-export type PageProps = inferSSRProps<typeof getServerSideProps>;
+/**
+ * videoBranding and recordingType are supplied by the server component rather than by
+ * getServerSideProps: this module's SSR bundle cannot read the runtime environment.
+ */
+export type PageProps = inferSSRProps<typeof getServerSideProps> & {
+  videoBranding: CalVideoBranding;
+  recordingType: DailyRecordingMode;
+};
 
 export default function JoinCall(props: PageProps) {
   const { t } = useLocale();

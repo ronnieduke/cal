@@ -1,24 +1,25 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { RONNIEDUKE_VIDEO_BRANDING, resolveVideoBranding } from "./resolveVideoBranding";
 
-describe("resolveVideoBranding", () => {
-  afterEach(() => {
-    vi.unstubAllEnvs();
-  });
+const TRAILSPARK_ENV = {
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT: "#D33000",
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_BG: "#1A1C1F",
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_BG_ACCENT: "#24262A",
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT: "#F2F3F5",
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT_MUTED: "#858892",
+  NEXT_PUBLIC_CAL_VIDEO_BRAND_BORDER: "#33363B",
+  NEXT_PUBLIC_CAL_VIDEO_LOGO_URL: "/trailspark-logo-white-word.png",
+  NEXT_PUBLIC_CAL_VIDEO_LOGO_ALT: "Trailspark",
+  NEXT_PUBLIC_CAL_VIDEO_BACKGROUND_URL: "/trailspark-video-bg.jpg",
+};
 
-  it("falls back to the ronnieduke.com branding when nothing is configured", () => {
-    expect(resolveVideoBranding()).toEqual(RONNIEDUKE_VIDEO_BRANDING);
+describe("resolveVideoBranding", () => {
+  it("falls back to the ronnieduke.com branding for an empty environment", () => {
+    expect(resolveVideoBranding({})).toEqual(RONNIEDUKE_VIDEO_BRANDING);
   });
 
   it("expands the six brand colours across all ten Daily theme keys", () => {
-    vi.stubEnv("CAL_VIDEO_BRAND_ACCENT", "#D33000");
-    vi.stubEnv("CAL_VIDEO_BRAND_BG", "#1A1C1F");
-    vi.stubEnv("CAL_VIDEO_BRAND_BG_ACCENT", "#24262A");
-    vi.stubEnv("CAL_VIDEO_BRAND_TEXT", "#F2F3F5");
-    vi.stubEnv("CAL_VIDEO_BRAND_TEXT_MUTED", "#858892");
-    vi.stubEnv("CAL_VIDEO_BRAND_BORDER", "#33363B");
-
-    expect(resolveVideoBranding().theme.colors).toEqual({
+    expect(resolveVideoBranding(TRAILSPARK_ENV).theme.colors).toEqual({
       accent: "#D33000",
       accentText: "#F2F3F5",
       background: "#1A1C1F",
@@ -33,16 +34,15 @@ describe("resolveVideoBranding", () => {
   });
 
   it("overrides individual colours without disturbing the rest", () => {
-    vi.stubEnv("CAL_VIDEO_BRAND_ACCENT", "#D33000");
-
-    const { colors } = resolveVideoBranding().theme;
+    const { colors } = resolveVideoBranding({ NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT: "#D33000" }).theme;
     expect(colors.accent).toBe("#D33000");
     expect(colors.background).toBe(RONNIEDUKE_VIDEO_BRANDING.theme.colors.background);
   });
 
   it("accepts lowercase and mixed-case hex", () => {
-    vi.stubEnv("CAL_VIDEO_BRAND_ACCENT", "#d33000");
-    expect(resolveVideoBranding().theme.colors.accent).toBe("#d33000");
+    expect(resolveVideoBranding({ NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT: "#d33000" }).theme.colors.accent).toBe(
+      "#d33000"
+    );
   });
 
   // A malformed colour must not reach Daily: an invalid theme value throws inside the
@@ -54,16 +54,15 @@ describe("resolveVideoBranding", () => {
     "red",
     "#D33000; background:url(x)",
     "",
+    undefined,
   ])("ignores the malformed colour %j and keeps the default", (value) => {
-    vi.stubEnv("CAL_VIDEO_BRAND_ACCENT", value);
-    expect(resolveVideoBranding().theme.colors.accent).toBe(RONNIEDUKE_VIDEO_BRANDING.theme.colors.accent);
+    expect(resolveVideoBranding({ NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT: value }).theme.colors.accent).toBe(
+      RONNIEDUKE_VIDEO_BRANDING.theme.colors.accent
+    );
   });
 
   it("uses the configured logo and alt text", () => {
-    vi.stubEnv("CAL_VIDEO_LOGO_URL", "/trailspark-logo-white-word.png");
-    vi.stubEnv("CAL_VIDEO_LOGO_ALT", "Trailspark");
-
-    const branding = resolveVideoBranding();
+    const branding = resolveVideoBranding(TRAILSPARK_ENV);
     expect(branding.logoUrl).toBe("/trailspark-logo-white-word.png");
     expect(branding.logoAlt).toBe("Trailspark");
   });
@@ -78,36 +77,28 @@ describe("resolveVideoBranding", () => {
     "trailspark-logo.png",
     "",
   ])("rejects the unsafe logo url %j and keeps the default", (value) => {
-    vi.stubEnv("CAL_VIDEO_LOGO_URL", value);
-    expect(resolveVideoBranding().logoUrl).toBe(RONNIEDUKE_VIDEO_BRANDING.logoUrl);
+    expect(resolveVideoBranding({ NEXT_PUBLIC_CAL_VIDEO_LOGO_URL: value }).logoUrl).toBe(
+      RONNIEDUKE_VIDEO_BRANDING.logoUrl
+    );
   });
 
   it("returns no background image unless one is configured", () => {
-    expect(resolveVideoBranding().backgroundUrl).toBeNull();
+    expect(resolveVideoBranding({}).backgroundUrl).toBeNull();
   });
 
   it("uses the configured background image", () => {
-    vi.stubEnv("CAL_VIDEO_BACKGROUND_URL", "/trailspark-video-bg.jpg");
-    expect(resolveVideoBranding().backgroundUrl).toBe("/trailspark-video-bg.jpg");
+    expect(resolveVideoBranding(TRAILSPARK_ENV).backgroundUrl).toBe("/trailspark-video-bg.jpg");
   });
 
   it("rejects an unsafe background image url", () => {
-    vi.stubEnv("CAL_VIDEO_BACKGROUND_URL", "https://evil.example.com/bg.jpg");
-    expect(resolveVideoBranding().backgroundUrl).toBeNull();
+    expect(
+      resolveVideoBranding({ NEXT_PUBLIC_CAL_VIDEO_BACKGROUND_URL: "https://evil.example.com/bg.jpg" })
+        .backgroundUrl
+    ).toBeNull();
   });
 
   it("resolves the full Trailspark brand from its documented configuration", () => {
-    vi.stubEnv("CAL_VIDEO_BRAND_ACCENT", "#D33000");
-    vi.stubEnv("CAL_VIDEO_BRAND_BG", "#1A1C1F");
-    vi.stubEnv("CAL_VIDEO_BRAND_BG_ACCENT", "#24262A");
-    vi.stubEnv("CAL_VIDEO_BRAND_TEXT", "#F2F3F5");
-    vi.stubEnv("CAL_VIDEO_BRAND_TEXT_MUTED", "#858892");
-    vi.stubEnv("CAL_VIDEO_BRAND_BORDER", "#33363B");
-    vi.stubEnv("CAL_VIDEO_LOGO_URL", "/trailspark-logo-white-word.png");
-    vi.stubEnv("CAL_VIDEO_LOGO_ALT", "Trailspark");
-    vi.stubEnv("CAL_VIDEO_BACKGROUND_URL", "/trailspark-video-bg.jpg");
-
-    expect(resolveVideoBranding()).toEqual({
+    expect(resolveVideoBranding(TRAILSPARK_ENV)).toEqual({
       theme: {
         colors: {
           accent: "#D33000",

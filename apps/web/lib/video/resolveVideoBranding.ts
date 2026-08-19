@@ -83,25 +83,33 @@ function assetPath(value: string | undefined): string | null {
 }
 
 /**
- * Branding is read at request time rather than through NEXT_PUBLIC_* build-time inlining so
- * that one image can serve several branded domains — the deployments differ only by env.
+ * These are NEXT_PUBLIC_ prefixed because this page's code is bundled, and bundled code only
+ * sees NEXT_PUBLIC_ variables at runtime — an unprefixed name reads as undefined in the
+ * container and silently yields the fallback branding. Verified on the deployment: an
+ * unprefixed var never took effect, while a NEXT_PUBLIC_ one applied on restart alone.
+ *
+ * The environment is passed in rather than read here so the read happens at the call site,
+ * which must be a server component.
  */
-export function resolveVideoBranding(): CalVideoBranding {
+export function resolveVideoBranding(env: Record<string, string | undefined>): CalVideoBranding {
   const fallback = RONNIEDUKE_VIDEO_BRANDING;
 
   return {
     theme: {
       colors: toThemeColors({
-        accent: color(process.env.CAL_VIDEO_BRAND_ACCENT, RONNIEDUKE_PALETTE.accent),
-        background: color(process.env.CAL_VIDEO_BRAND_BG, RONNIEDUKE_PALETTE.background),
-        backgroundAccent: color(process.env.CAL_VIDEO_BRAND_BG_ACCENT, RONNIEDUKE_PALETTE.backgroundAccent),
-        text: color(process.env.CAL_VIDEO_BRAND_TEXT, RONNIEDUKE_PALETTE.text),
-        textMuted: color(process.env.CAL_VIDEO_BRAND_TEXT_MUTED, RONNIEDUKE_PALETTE.textMuted),
-        border: color(process.env.CAL_VIDEO_BRAND_BORDER, RONNIEDUKE_PALETTE.border),
+        accent: color(env.NEXT_PUBLIC_CAL_VIDEO_BRAND_ACCENT, RONNIEDUKE_PALETTE.accent),
+        background: color(env.NEXT_PUBLIC_CAL_VIDEO_BRAND_BG, RONNIEDUKE_PALETTE.background),
+        backgroundAccent: color(
+          env.NEXT_PUBLIC_CAL_VIDEO_BRAND_BG_ACCENT,
+          RONNIEDUKE_PALETTE.backgroundAccent
+        ),
+        text: color(env.NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT, RONNIEDUKE_PALETTE.text),
+        textMuted: color(env.NEXT_PUBLIC_CAL_VIDEO_BRAND_TEXT_MUTED, RONNIEDUKE_PALETTE.textMuted),
+        border: color(env.NEXT_PUBLIC_CAL_VIDEO_BRAND_BORDER, RONNIEDUKE_PALETTE.border),
       }),
     },
-    logoUrl: assetPath(process.env.CAL_VIDEO_LOGO_URL) ?? fallback.logoUrl,
-    logoAlt: process.env.CAL_VIDEO_LOGO_ALT || fallback.logoAlt,
-    backgroundUrl: assetPath(process.env.CAL_VIDEO_BACKGROUND_URL),
+    logoUrl: assetPath(env.NEXT_PUBLIC_CAL_VIDEO_LOGO_URL) ?? fallback.logoUrl,
+    logoAlt: env.NEXT_PUBLIC_CAL_VIDEO_LOGO_ALT || fallback.logoAlt,
+    backgroundUrl: assetPath(env.NEXT_PUBLIC_CAL_VIDEO_BACKGROUND_URL),
   };
 }
