@@ -3,6 +3,7 @@
  * prepends https:// to make it valid for URL parsing.
  * This handles cases where environment variables have their protocol stripped
  */
+import process from "node:process";
 function ensureProtocol(url: string | undefined): string {
   if (!url) return "";
   if (url.startsWith("http://") || url.startsWith("https://")) return url;
@@ -98,16 +99,25 @@ export const PUBLIC_QUICK_AVAILABILITY_ROLLOUT =
 
 /** @deprecated use `WEBAPP_URL` */
 export const NEXT_PUBLIC_BASE_URL = process.env.NEXT_PUBLIC_WEBAPP_URL || `https://${process.env.VERCEL_URL}`;
-export const LOGO = "/calcom-logo-white-word.svg";
-export const LOGO_DARK = "/cal-logo-word-black.svg";
-export const LOGO_ICON = "/cal-com-icon-white.svg";
+// Self-hosted instances cannot use the per-team logos in /api/logo: getTeamLogos()
+// short-circuits whenever IS_SELF_HOSTED, so these constants are the only branding
+// hook available. Each is env-overridable so one image can serve several domains.
+export const LOGO = process.env.NEXT_PUBLIC_LOGO || "/calcom-logo-white-word.svg";
+export const LOGO_DARK = process.env.NEXT_PUBLIC_LOGO_DARK || "/cal-logo-word-black.svg";
+export const LOGO_ICON = process.env.NEXT_PUBLIC_LOGO_ICON || "/cal-com-icon-white.svg";
+// The nav logo is rendered with a `dark:invert` filter, which only reads correctly on a
+// monochrome wordmark. Multi-colour brand logos must opt out or they invert to their
+// complementary colours in dark mode.
+export const LOGO_INVERT_IN_DARK = process.env.NEXT_PUBLIC_LOGO_INVERT_IN_DARK !== "false";
 export const AVATAR_FALLBACK = "/avatar.svg";
-export const FAVICON_16 = "/favicon-16x16.png";
-export const FAVICON_32 = "/favicon-32x32.png";
-export const APPLE_TOUCH_ICON = "/apple-touch-icon.png";
-export const MSTILE_ICON = "/mstile-150x150.png";
-export const ANDROID_CHROME_ICON_192 = "/android-chrome-192x192.png";
-export const ANDROID_CHROME_ICON_256 = "/android-chrome-256x256.png";
+export const FAVICON_16 = process.env.NEXT_PUBLIC_FAVICON_16 || "/favicon-16x16.png";
+export const FAVICON_32 = process.env.NEXT_PUBLIC_FAVICON_32 || "/favicon-32x32.png";
+export const APPLE_TOUCH_ICON = process.env.NEXT_PUBLIC_APPLE_TOUCH_ICON || "/apple-touch-icon.png";
+export const MSTILE_ICON = process.env.NEXT_PUBLIC_MSTILE_ICON || "/mstile-150x150.png";
+export const ANDROID_CHROME_ICON_192 =
+  process.env.NEXT_PUBLIC_ANDROID_CHROME_ICON_192 || "/android-chrome-192x192.png";
+export const ANDROID_CHROME_ICON_256 =
+  process.env.NEXT_PUBLIC_ANDROID_CHROME_ICON_256 || "/android-chrome-256x256.png";
 export const ROADMAP = "https://cal.com/roadmap";
 export const DESKTOP_APP_LINK = "https://cal.com/download";
 export const JOIN_COMMUNITY = "https://github.com/calcom/cal.diy/discussions";
