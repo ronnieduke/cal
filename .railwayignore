@@ -1,0 +1,7 @@
+.env
+.env.*
+packages/prisma/.env
+node_modules
+.next
+.turbo
+.git
