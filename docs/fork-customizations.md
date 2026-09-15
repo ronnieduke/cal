@@ -100,11 +100,12 @@ DATABASE_URL=... node scripts/create-team-selfhost.mjs you@example.com
 
 Transcription is Daily's Deepgram service, billed per minute to the Daily account.
 
-### 6. Temporary reverts of upstream commits
+### 6. Temporary reverts and build fixes
 
 | Upstream commit | Fork change | Drop when |
 |---|---|---|
 | `39c96bc04d` removed the `@ts-expect-error` on `CacheProvider` | Restored in `apps/web/app/providers.tsx` and `apps/web/pages/_app.tsx` | Upstream upgrades `@types/react` past 18.0.26, or `@calcom/web` type-checks without the directive. |
+| *(not a revert)* Dockerfile ran unpinned `npx turbo prune` | Pinned to `npx turbo@2.7.1` (the version in `package.json`). turbo 2.10.13 (2026-09-14) rejects repeated `--scope`, which broke every Railway build. Upstream's Dockerfile has the same bug. | Keep the pin, but bump it whenever `package.json` bumps turbo. |
 
 ## Upgrading from upstream
 
