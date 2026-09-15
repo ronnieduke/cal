@@ -8,6 +8,7 @@ import { ErrorWithCode } from "@calcom/lib/errors";
 import logger from "@calcom/lib/logger";
 import { safeStringify } from "@calcom/lib/safeStringify";
 import { eventTypeSelect } from "@calcom/lib/server/eventTypeSelect";
+import type { EventTypeLocation } from "@calcom/lib/zod/eventType";
 import type { PrismaClient } from "@calcom/prisma";
 import { availabilityUserSelect, userSelect as userSelectWithSelectedCalendars } from "@calcom/prisma";
 import type { Prisma, EventType as PrismaEventType } from "@calcom/prisma/client";
@@ -156,6 +157,19 @@ export class EventTypeRepository implements IEventTypesRepository {
       data: this.generateCreateEventTypeData(data),
       include: {
         calVideoSettings: true,
+      },
+    });
+  }
+
+  async createWithLocations({ locations, ...data }: IEventType & { locations: EventTypeLocation[] }) {
+    return await this.prismaClient.eventType.create({
+      data: {
+        ...this.generateCreateEventTypeData(data),
+        locations,
+        ...(data.userId ? { users: { connect: { id: data.userId } } } : null),
+      },
+      select: {
+        id: true,
       },
     });
   }

@@ -434,6 +434,7 @@ const getCalVideoMeetingSessionsByRoomName = async (roomName: string) => {
 export {
   getBusyVideoTimes,
   createMeeting,
+  createMeetingWithCalVideo,
   updateMeeting,
   deleteMeeting,
   getRecordingsOfCalVideoByRoomName,

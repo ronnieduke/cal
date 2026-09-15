@@ -75,7 +75,6 @@ export type ManagedEventCancellationResult = {
   status: BookingStatus;
 };
 
-
 type TeamBookingsParamsBase = {
   user: { id: number; email: string };
   teamId: number;
@@ -1596,6 +1595,61 @@ export class BookingRepository implements IBookingRepository {
         references: {
           select: referenceSelect,
         },
+        uid: true,
+      },
+    });
+  }
+
+  async createWithReferences({
+    uid,
+    title,
+    status,
+    userId,
+    userPrimaryEmail,
+    eventTypeId,
+    startTime,
+    endTime,
+    location,
+    responses,
+    metadata,
+    references,
+  }: {
+    uid: string;
+    title: string;
+    status: "ACCEPTED" | "PENDING";
+    userId: number;
+    userPrimaryEmail: string;
+    eventTypeId: number;
+    startTime: Date;
+    endTime: Date;
+    location: string;
+    responses: Record<string, string>;
+    metadata: Record<string, string>;
+    references: {
+      type: string;
+      uid: string;
+      meetingId: string;
+      meetingPassword: string;
+      meetingUrl: string;
+    }[];
+  }) {
+    return await this.prismaClient.booking.create({
+      data: {
+        uid,
+        title,
+        status,
+        userPrimaryEmail,
+        startTime,
+        endTime,
+        location,
+        responses,
+        metadata,
+        eventType: { connect: { id: eventTypeId } },
+        user: { connect: { id: userId } },
+        references: { createMany: { data: references } },
+      },
+      select: {
+        id: true,
         uid: true,
       },
     });

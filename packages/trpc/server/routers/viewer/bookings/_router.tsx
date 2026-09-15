@@ -105,6 +105,11 @@ export const bookingsRouter = router({
       input,
     });
   }),
+  startInstantMeeting: authedProcedure.mutation(async ({ ctx }) => {
+    const { startInstantMeetingHandler } = await import("./startInstantMeeting.handler");
+
+    return startInstantMeetingHandler({ ctx });
+  }),
   reportWrongAssignment: authedProcedure
     .input(ZReportWrongAssignmentInputSchema)
     .mutation(async ({ input, ctx }) => {
